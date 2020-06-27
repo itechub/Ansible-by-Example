@@ -31,7 +31,7 @@
 
 ## 1.2 安装 Ansible
 
-Ansible 只需要在操作机器上安装，安装之后便使用 Ansible 基于 SSH 来操作远程主机。远程主机除了安装 OpenSSH Server 之外，不需要安装任何其他和 Ansible 相关的软件。因此说 Ansible 是“无客户端的”，无需担心远程主机因为安装的自动化工具存在漏洞而被入侵。
+Ansible 只需要在操作机器上安装，安装之后就可以使用 Ansible 基于 SSH 来操作远程主机。远程主机除了安装 OpenSSH Server 之外，不需要安装任何其他和 Ansible 相关的软件。因此说 Ansible 是“无客户端的”，无需担心远程主机因为安装的自动化工具存在漏洞而被入侵。
 
 [ins_guide]: https://docs.ansible.com/ansible/latest/installation_guide/index.html
 
