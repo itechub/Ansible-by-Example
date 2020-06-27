@@ -5,13 +5,13 @@
 [license]: https://img.shields.io/github/license/itechub/Ansible-by-Example.svg
 [license_link]: https://github.com/itechub/Ansible-by-Example/blob/master/LICENSE
 
-使用 Ansible 管理 Linux 服务器。
-
 ## 介绍
 
 本项目将通过若干运维实例演示如何使用 Ansible 管理一台全新的 Linux 服务器。
 
 ### 关于 Ansible
+
+Ansible 是一款轻量级的 IT 运维自动化工具，现已被知名厂商 Red Hat 收购。
 
 [ansible_site]: https://ansible.com/
 [ansible_repo]: https://github.com/ansible/ansible
@@ -43,7 +43,7 @@
 
 ## 目录
 
-### 1. 环境准备
+### [1. 环境准备](docs/01_prepare.md)
 
 #### 1.1 一台全新的 Linux 服务器
 
