@@ -47,7 +47,9 @@ ansible 2.8.4
   python version = 3.7.4 (default, Jul  9 2019, 18:13:23) [Clang 10.0.1 (clang-1001.0.46.4)]
 ```
 
-### 1.2.1 测试
+## 1.3 测试
+
+### 1.3.1 测试使用 Ansible 连接服务器
 
 使用在本地安装的 Ansible 访问 **1.1** 小节中安装的“远程”服务器。
 
@@ -69,7 +71,8 @@ ansible all -i "192.168.242.162," -m ping -u octobug -k
 $ ansible all -i "192.168.242.162," -m ping -u octobug -k
 SSH password:
 192.168.242.162 | FAILED! => {
-    "msg": "to use the 'ssh' connection type with passwords, you must install the sshpass program"
+    "msg": "to use the 'ssh' connection type with passwords,
+      you must install the sshpass program"
 }
 ```
 
@@ -79,7 +82,8 @@ SSH password:
 $ brew install sshpass
 Updating Homebrew...
 Error: No available formula with the name "sshpass"
-We won't add sshpass because it makes it too easy for novice SSH users to ruin SSH's security.
+We won't add sshpass because it makes it too easy for novice SSH users to ruin
+  SSH's security.
 ```
 
 [sshpass]: https://groups.google.com/forum/#!topic/ansible-project/VXxqo88x1Zc
@@ -88,7 +92,7 @@ We won't add sshpass because it makes it too easy for novice SSH users to ruin S
 
 > Ansible doesn't require openssh-server on the control machine, but when you are using ssh with password the program "sshpass" is needed on the control machine since ssh doesn’t provide this functionality itself.
 
-既然如此，还是改用 SSH Key 登录吧。
+既然如此，我们改用 SSH Key 登录。
 
 ### 1.2.2 `ssh-copy-id`
 
@@ -101,7 +105,9 @@ octobug@192.168.242.162's password:
 
 Number of key(s) added:        1
 
-Now try logging into the machine, with:   "ssh 'octobug@192.168.242.162'" and check to make sure that only the key(s) you wanted were added.
+Now try logging into the machine, with:
+  "ssh 'octobug@192.168.242.162'" and check to make sure that only the key(s) you
+  wanted were added.
 ```
 
 ### 1.2.3 重新测试
@@ -119,7 +125,7 @@ $ ansible all -i "192.168.242.162," -m ping -u octobug
 }
 ```
 
-- `ansible_facts`：Ansible 关心的远程主机基本信息
+- `"ansible_facts"`：Ansible 关心并收集的远程主机基本信息
 - `"changed": false`：远程主机相关状态未被 Ansible ping 模块改变
 - `"ping": "pong"`：ping 模块的执行结果
 
