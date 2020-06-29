@@ -28,7 +28,7 @@
 
 ## 1.2 安装 Ansible
 
-Ansible 只需要在操作机器上安装，安装之后就可以使用 Ansible 基于 SSH 来操作远程主机。远程主机除了安装 OpenSSH Server 之外，不需要安装任何其他和 Ansible 相关的软件。因此说 Ansible 是“无客户端的”，无需担心远程主机因为安装的自动化工具存在漏洞而被入侵。
+Ansible 只需要在操作机器上安装，安装之后就可以使用 Ansible 基于 SSH 来操作远程主机。远程主机不需要额外安装任何其他跟 Ansible 相关的软件（当然 OpenSSH Server、Python 解释器等软件还是需要的，但这些一般是 Linux 标配）。因此说 Ansible 是“无客户端的”，无需担心远程主机因为安装的自动化工具存在漏洞而被入侵。
 
 [ins_guide]: https://docs.ansible.com/ansible/latest/installation_guide/index.html
 
@@ -122,7 +122,7 @@ $ ansible all -i "192.168.242.162," -m ping -u octobug
 }
 ```
 
-- `"ansible_facts"`：Ansible 关心并收集的远程主机基本信息
+- `"ansible_facts"`：Ansible 关心并从远程主机收集的基本信息
 - `"changed": false`：远程主机相关状态未被 Ansible ping 模块改变
 - `"ping": "pong"`：ping 模块的执行结果
 
@@ -132,6 +132,71 @@ $ ansible all -i "192.168.242.162," -m ping -u octobug
 
 ### 1.3.4 Ansible 使用 `ping` 做了些什么？
 
+`1.3.3` 小节中 Ansible 返回了这样一段信息 `"discovered_interpreter_python": "/usr/bin/python3"`，它是如何采集的？下面增加 `-vvv`选项（最多支持 5 个 `v`） 来查看 Ansible 的工作过程。
+
+从下面的输出可以看出，Ansible 在远程服务器上主要做了以下几件事：
+
+- 尝试使用 `octobug` 账户登录服务器
+- 在服务器上初始化临时目录 `/home/octobug/.ansible/tmp`
+- 检测服务器操作系统版本信息和 Python 解释器信息
+- 使用 `sftp` 服务上传 `ping` 模块的 .py 脚本
+- 为 `ping` 脚本设置可执行权限
+- 执行 `ping` 脚本
+- 清理临时目录
+
+```bash
+$ ansible all -i "192.168.242.162," -m ping -u octobug -vvv
+ansible 2.9.10
+  config file = None
+  configured module search path = ['/Users/octobug/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules']
+  ansible python module location = /Users/octobug/.local/lib/python3.7/site-packages/ansible
+  executable location = /Users/octobug/.local/bin/ansible
+  python version = 3.7.3 (default, Apr 24 2019, 10:44:04) [Clang 10.0.1 (clang-1001.0.46.4)]
+No config file found; using defaults
+Parsed 192.168.242.162, inventory source with host_list plugin
+META: ran handlers
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'echo ~octobug && sleep 0'"'"''
+<192.168.242.162> (0, b'/home/octobug\n', b'')
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'( umask 77 && mkdir -p "` echo /home/octobug/.ansible/tmp `"&& mkdir /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522 && echo ansible-tmp-1593444481.745457-85483-162128629383522="` echo /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522 `" ) && sleep 0'"'"''
+<192.168.242.162> (0, b'ansible-tmp-1593444481.745457-85483-162128629383522=/home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522\n', b'')
+<192.168.242.162> Attempting python interpreter discovery
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'echo PLATFORM; uname; echo FOUND; command -v '"'"'"'"'"'"'"'"'/usr/bin/python'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python3.7'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python3.6'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python3.5'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python2.7'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python2.6'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'/usr/libexec/platform-python'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'/usr/bin/python3'"'"'"'"'"'"'"'"'; command -v '"'"'"'"'"'"'"'"'python'"'"'"'"'"'"'"'"'; echo ENDFOUND && sleep 0'"'"''
+<192.168.242.162> (0, b'PLATFORM\nLinux\nFOUND\n/usr/bin/python3\nENDFOUND\n', b'')
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'/usr/bin/python3 && sleep 0'"'"''
+<192.168.242.162> (0, b'{"platform_dist_result": [], "osrelease_content": "NAME=\\"Ubuntu\\"\\nVERSION=\\"20.04 LTS (Focal Fossa)\\"\\nID=ubuntu\\nID_LIKE=debian\\nPRETTY_NAME=\\"Ubuntu 20.04 LTS\\"\\nVERSION_ID=\\"20.04\\"\\nHOME_URL=\\"https://www.ubuntu.com/\\"\\nSUPPORT_URL=\\"https://help.ubuntu.com/\\"\\nBUG_REPORT_URL=\\"https://bugs.launchpad.net/ubuntu/\\"\\nPRIVACY_POLICY_URL=\\"https://www.ubuntu.com/legal/terms-and-policies/privacy-policy\\"\\nVERSION_CODENAME=focal\\nUBUNTU_CODENAME=focal\\n"}\n', b'')
+Using module file /Users/octobug/.local/lib/python3.7/site-packages/ansible/modules/system/ping.py
+<192.168.242.162> PUT /Users/octobug/.ansible/tmp/ansible-local-85477irz20z0r/tmp15j2ul71 TO /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/AnsiballZ_ping.py
+<192.168.242.162> SSH: EXEC sftp -b - -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 '[192.168.242.162]'
+<192.168.242.162> (0, b'sftp> put /Users/octobug/.ansible/tmp/ansible-local-85477irz20z0r/tmp15j2ul71 /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/AnsiballZ_ping.py\n', b'')
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'chmod u+x /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/ /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/AnsiballZ_ping.py && sleep 0'"'"''
+<192.168.242.162> (0, b'', b'')
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 -tt 192.168.242.162 '/bin/sh -c '"'"'/usr/bin/python3 /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/AnsiballZ_ping.py && sleep 0'"'"''
+<192.168.242.162> (0, b'\r\n{"ping": "pong", "invocation": {"module_args": {"data": "pong"}}}\r\n', b'Shared connection to 192.168.242.162 closed.\r\n')
+<192.168.242.162> ESTABLISH SSH CONNECTION FOR USER: octobug
+<192.168.242.162> SSH: EXEC ssh -C -o ControlMaster=auto -o ControlPersist=60s -o KbdInteractiveAuthentication=no -o PreferredAuthentications=gssapi-with-mic,gssapi-keyex,hostbased,publickey -o PasswordAuthentication=no -o 'User="octobug"' -o ConnectTimeout=10 -o ControlPath=/Users/octobug/.ansible/cp/513cab52f6 192.168.242.162 '/bin/sh -c '"'"'rm -f -r /home/octobug/.ansible/tmp/ansible-tmp-1593444481.745457-85483-162128629383522/ > /dev/null 2>&1 && sleep 0'"'"''
+<192.168.242.162> (0, b'', b'')
+192.168.242.162 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python3"
+    },
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "data": "pong"
+        }
+    },
+    "ping": "pong"
+}
+META: ran handlers
+META: ran handlers
+```
+
 ### 1.3.5 保存快照
 
-成功安装后关闭虚拟机并保存当前快照，这份快照将在后面派上用场。
+完成上面的实验环境配置后，关闭虚拟机并保存当前快照，这份快照将在后面派上用场。
