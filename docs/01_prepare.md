@@ -5,8 +5,9 @@
 [ubuntu_mrs]: https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/20.04/
 [ubuntu_iso]: https://mirrors.tuna.tsinghua.edu.cn/ubuntu-releases/20.04/ubuntu-20.04-desktop-amd64.iso
 
-本项目所使用的“远程服务器”为一台安装在本地虚拟机里的 `Ubuntu Server 20.04 x64`，
-镜像可从 [ubuntu-releases/20.04][ubuntu_mrs] 获取，具体的镜像文件是 [`ubuntu-20.04-live-server-amd64.iso`][ubuntu_iso]。
+本项目所使用的“远程”服务器为一台安装在本地虚拟机里的 `Ubuntu Server 20.04 x64`，镜像可从 [ubuntu-releases/20.04][ubuntu_mrs] 获取，具体的镜像文件是 [`ubuntu-20.04-live-server-amd64.iso`][ubuntu_iso]。
+
+虚拟机软件建议使用 `VMware` 或 `VirtualBox`。
 
 ### 1.1.1 初始环境
 
@@ -24,10 +25,6 @@
 ![Initail Server](./images/01_01_init_ubuntu.png)
 
 如图所示，安装后 DHCP 分配的 IPv4 为 `192.168.242.162`。
-
-### 1.1.2 保存快照
-
-成功安装后关闭虚拟机保存当前快照，这份快照将在后面派上用场。
 
 ## 1.2 安装 Ansible
 
@@ -51,7 +48,7 @@ ansible 2.8.4
 
 ### 1.3.1 测试使用 Ansible 连接服务器
 
-使用在本地安装的 Ansible 访问 **1.1** 小节中安装的“远程”服务器。
+使用 **1.2** 小节安装的 Ansible 访问 **1.1** 小节中安装的“远程”服务器。
 
 由于服务器上还没有 SSH 登录到 octobug 账户的公钥，所以先尝试用密码连接主机：
 
@@ -94,7 +91,7 @@ We won't add sshpass because it makes it too easy for novice SSH users to ruin
 
 既然如此，我们改用 SSH Key 登录。
 
-### 1.2.2 `ssh-copy-id`
+### 1.3.2 `ssh-copy-id`
 
 ```bash
 $ ssh-copy-id octobug@192.168.242.162
@@ -110,7 +107,7 @@ Now try logging into the machine, with:
   wanted were added.
 ```
 
-### 1.2.3 重新测试
+### 1.3.3 重新测试
 
 这次将会使用 SSH Key 登录，因此不指定 `-k`。
 
@@ -132,3 +129,9 @@ $ ansible all -i "192.168.242.162," -m ping -u octobug
 至此，本地操作机已经可以和“远程”主机正常通信。
 
 下一节，将介绍 Ansible 中的一些常见术语，并使用 Ansible Playbook 来对这台服务器完成一些基本的系统配置。
+
+### 1.3.4 Ansible 使用 `ping` 做了些什么？
+
+### 1.3.5 保存快照
+
+成功安装后关闭虚拟机并保存当前快照，这份快照将在后面派上用场。

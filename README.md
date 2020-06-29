@@ -11,7 +11,7 @@
 
 ### 关于 Ansible
 
-Ansible 是一款轻量级的 IT 运维自动化工具，现已被知名厂商 Red Hat 收购。
+Ansible 是一款轻量级的 IT 运维自动化工具，免费且开源，现已被知名厂商 Red Hat 收购。
 
 [ansible_site]: https://ansible.com/
 [ansible_repo]: https://github.com/ansible/ansible
@@ -49,7 +49,7 @@ Ansible 是一款轻量级的 IT 运维自动化工具，现已被知名厂商 R
 
 #### [1.2 安装 Ansible](docs/01_prepare.md#12-安装-ansible)
 
-#### [1.3 测试](docs/01_prepare.md#12-测试)
+#### [1.3 测试](docs/01_prepare.md#13-测试)
 
 ### 2. Linux 基础配置
 
