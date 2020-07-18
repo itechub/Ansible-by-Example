@@ -1,0 +1,9 @@
+# This is the network config written by 'subiquity'
+network:
+  ethernets:
+    ens33:
+      addresses: [192.168.242.162/24]
+      gateway4: 192.168.242.2
+      nameservers:
+        addresses: [4.2.2.2, 8.8.8.8]
+  version: 2

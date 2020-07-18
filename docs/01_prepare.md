@@ -128,8 +128,6 @@ $ ansible all -i "192.168.242.162," -m ping -u octobug
 
 至此，本地操作机已经可以和“远程”主机正常通信。
 
-下一节，将介绍 Ansible 中的一些常见术语，并使用 Ansible Playbook 来对这台服务器完成一些基本的系统配置。
-
 ### 1.3.4 Ansible 使用 `ping` 做了些什么？
 
 `1.3.3` 小节中 Ansible 返回了这样一段信息 `"discovered_interpreter_python": "/usr/bin/python3"`，它是如何采集的？下面增加 `-vvv`选项（最多支持 5 个 `v`） 来查看 Ansible 的工作过程。
@@ -197,6 +195,6 @@ META: ran handlers
 META: ran handlers
 ```
 
-### 1.3.5 保存快照
+---
 
-完成上面的实验环境配置后，关闭虚拟机并保存当前快照，这份快照将在后面派上用场。
+下一节，将使用 Ansible Playbook 来完成几项基本的系统配置，并通过它介绍 Ansible 中的常见术语。
